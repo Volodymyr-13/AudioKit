@@ -78,7 +78,7 @@ public extension AudioPlayer {
         guard let file = file else { return }
         let sampleRate = file.fileFormat.sampleRate
 
-        let startTime = currentTime + seekTime
+        let startTime = seekTime
         let endTime = editEndTime
 
         guard startTime > 0 && startTime < endTime else {
