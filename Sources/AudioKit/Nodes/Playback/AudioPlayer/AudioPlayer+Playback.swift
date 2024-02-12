@@ -108,7 +108,13 @@ public extension AudioPlayer {
             at: nil,
             completionCallbackType: .dataPlayedBack
         ) { _ in
-            self.internalCompletionHandler()
+            if Thread.isMainThread {
+                self.internalCompletionHandler()
+            } else {
+                DispatchQueue.main.async {
+                    self.internalCompletionHandler()
+                }
+            }
         }
 
         if status == .playing {
