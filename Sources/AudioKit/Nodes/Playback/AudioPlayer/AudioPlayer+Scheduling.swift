@@ -52,23 +52,28 @@ extension AudioPlayer {
 
         let frameCount = AVAudioFrameCount(totalFrames)
 
-        playerNode.scheduleSegment(file,
-                                   startingFrame: startFrame,
-                                   frameCount: frameCount,
-                                   at: audioTime,
-                                   completionCallbackType: completionCallbackType) {[weak self] _ in
+        playerNode.scheduleFile(file, at: audioTime, completionCallbackType: completionCallbackType) { [weak self] _ in
             guard let self else { return }
             if self.isSeeking { return }
-            if Thread.isMainThread {
-                self.internalCompletionHandler()
-            } else {
-                DispatchQueue.main.async {
-                    self.internalCompletionHandler()
-                }
-            }
+            self.internalCompletionHandler()
         }
+//        playerNode.scheduleSegment(file,
+//                                   startingFrame: startFrame,
+//                                   frameCount: frameCount,
+//                                   at: audioTime,
+//                                   completionCallbackType: completionCallbackType) {[weak self] _ in
+//            guard let self else { return }
+//            if self.isSeeking { return }
+//            if Thread.isMainThread {
+//                self.internalCompletionHandler()
+//            } else {
+//                DispatchQueue.main.async {
+//                    self.internalCompletionHandler()
+//                }
+//            }
+//        }
 
-        playerNode.prepare(withFrameCount: frameCount)
+//        playerNode.prepare(withFrameCount: frameCount)
         status = .stopped
     }
 
