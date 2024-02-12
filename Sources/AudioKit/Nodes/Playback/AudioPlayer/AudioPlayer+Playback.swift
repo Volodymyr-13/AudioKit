@@ -13,7 +13,8 @@ public extension AudioPlayer {
     func play(from startTime: TimeInterval? = nil,
               to endTime: TimeInterval? = nil,
               at when: AVAudioTime? = nil,
-              completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack)
+              completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack,
+              completionHandler: @escaping () -> Void)
     {
         guard let engine = playerNode.engine else {
             Log("🛑 Error: AudioPlayer must be attached before playback.", type: .error)
@@ -39,9 +40,7 @@ public extension AudioPlayer {
         if status == .paused {
             resume()
         } else {
-            if !skipScheduleFile {
-                schedule(at: when, completionCallbackType: completionCallbackType)
-            }
+            schedule(at: when, completionCallbackType: completionCallbackType, completionHandler: completionHandler)
             playerNode.play()
             status = .playing
         }
@@ -74,47 +73,48 @@ public extension AudioPlayer {
     /// Positive time seeks forwards, negative time seeks backwards.
     /// - Parameters:
     ///   - time seconds, relative to current playback, to seek by
-    func seek(time seekTime: TimeInterval) {
+    func seek(time seekTime: TimeInterval, completionHandler: @escaping () -> Void) {
         guard seekTime != 0 else { return }
-
+        
         guard let file = file else { return }
         let sampleRate = file.fileFormat.sampleRate
-
+        
         let startTime = seekTime
         let endTime = editEndTime
-
+        
         guard startTime > 0 && startTime < endTime else {
             stop()
             if isLooping { play() }
             return
         }
-
+        
         let startFrame = AVAudioFramePosition(startTime * sampleRate)
         let endFrame = AVAudioFramePosition(endTime * sampleRate)
-
+        
         let frameCount = AVAudioFrameCount(endFrame - startFrame)
-
+        
         guard frameCount > 0 else {
             stop()
             if isLooping { play() }
             return
         }
-
+        
         isSeeking = true
         playerNode.stop()
-
-        if !skipScheduleFile {
-            playerNode.scheduleSegment(
-                file,
-                startingFrame: startFrame,
-                frameCount: frameCount,
-                at: nil,
-                completionCallbackType: .dataPlayedBack
-            ) { _ in
-                self.internalCompletionHandler()
-            }
+        playerNode.scheduleSegment(
+            file,
+            startingFrame: startFrame,
+            frameCount: frameCount,
+            at: nil,
+            completionCallbackType: .dataPlayedBack
+        ) {[weak self] _ in
+            guard let self,
+                  self.status == .playing,
+                  !self.isSeeking,
+                  self.engine?.isInManualRenderingMode == false else { return }
+            completionHandler()
         }
-
+        
         if status == .playing {
             playerNode.play()
         }

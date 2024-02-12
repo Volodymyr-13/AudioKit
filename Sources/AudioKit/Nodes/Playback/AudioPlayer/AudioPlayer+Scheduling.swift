@@ -9,18 +9,21 @@ extension AudioPlayer {
     ///   - when: What time to schedule for
     ///   - completionCallbackType: Constants that specify when the completion handler must be invoked.
     public func schedule(at when: AVAudioTime? = nil,
-                         completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack)
+                         completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack,
+                         completionHandler: @escaping () -> Void)
     {
         status = .scheduling
 
         if isBuffered {
             updateBuffer()
             scheduleBuffer(at: when,
-                           completionCallbackType: completionCallbackType)
+                           completionCallbackType: completionCallbackType, 
+                           completionHandler: completionHandler)
 
         } else if file != nil {
             scheduleSegment(at: when,
-                            completionCallbackType: completionCallbackType)
+                            completionCallbackType: completionCallbackType, 
+                            completionHandler: completionHandler)
 
         } else {
             Log("The player needs a file or a valid buffer to schedule", type: .error)
@@ -29,7 +32,8 @@ extension AudioPlayer {
 
     // play from disk rather than ram
     private func scheduleSegment(at audioTime: AVAudioTime?,
-                                 completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack)
+                                 completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack,
+                                 completionHandler: @escaping () -> Void)
     {
         guard let file = file else {
             Log("File is nil")
@@ -58,7 +62,10 @@ extension AudioPlayer {
                                    completionCallbackType: completionCallbackType) {[weak self] _ in
             guard let self else { return }
             if self.isSeeking { return }
-            self.internalCompletionHandler()
+            guard self.status == .playing,
+                  !self.isSeeking,
+                  self.engine?.isInManualRenderingMode == false else { return }
+            completionHandler()
         }
 
         playerNode.prepare(withFrameCount: frameCount)
@@ -66,7 +73,8 @@ extension AudioPlayer {
     }
 
     private func scheduleBuffer(at audioTime: AVAudioTime?,
-                                completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack)
+                                completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack,
+                                completionHandler: @escaping () -> Void)
     {
         if playerNode.outputFormat(forBus: 0) != buffer?.format {
             Log("Format of the buffer doesn't match the player")
@@ -91,7 +99,10 @@ extension AudioPlayer {
                                   completionCallbackType: completionCallbackType) {[weak self] _ in
             guard let self else { return }
             if self.isSeeking { return }
-            self.internalCompletionHandler()
+            guard self.status == .playing,
+                  !self.isSeeking,
+                  self.engine?.isInManualRenderingMode == false else { return }
+            completionHandler()
         }
         playerNode.prepare(withFrameCount: buffer.frameLength)
     }
