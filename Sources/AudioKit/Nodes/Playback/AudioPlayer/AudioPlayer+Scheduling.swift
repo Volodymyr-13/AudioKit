@@ -56,15 +56,10 @@ extension AudioPlayer {
                                    startingFrame: startFrame,
                                    frameCount: frameCount,
                                    at: audioTime,
-                                   completionCallbackType: completionCallbackType) { _ in
+                                   completionCallbackType: completionCallbackType) {[weak self] _ in
+            guard let self else { return }
             if self.isSeeking { return }
-            if Thread.isMainThread {
-                self.internalCompletionHandler()
-            } else {
-                DispatchQueue.main.async {
-                    self.internalCompletionHandler()
-                }
-            }
+            self.internalCompletionHandler()
         }
 
         playerNode.prepare(withFrameCount: frameCount)
@@ -94,17 +89,11 @@ extension AudioPlayer {
         playerNode.scheduleBuffer(buffer,
                                   at: audioTime,
                                   options: bufferOptions,
-                                  completionCallbackType: completionCallbackType) { _ in
+                                  completionCallbackType: completionCallbackType) {[weak self] _ in
+            guard let self else { return }
             if self.isSeeking { return }
-            if Thread.isMainThread {
-                self.internalCompletionHandler()
-            } else {
-                DispatchQueue.main.async {
-                    self.internalCompletionHandler()
-                }
-            }
+            self.internalCompletionHandler()
         }
-
         playerNode.prepare(withFrameCount: buffer.frameLength)
     }
 }
