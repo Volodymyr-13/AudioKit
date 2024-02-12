@@ -2,10 +2,6 @@
 
 import AVFoundation
 
-public protocol AudioPlayerScheduleFileCompletionDelegate {
-    func scheduleCompletionCallback()
-}
-
 public extension AudioPlayer {
     // MARK: - Playback
 
@@ -43,7 +39,7 @@ public extension AudioPlayer {
         if status == .paused {
             resume()
         } else {
-            schedule(at: when, completionCallbackType: completionCallbackType)
+//            schedule(at: when, completionCallbackType: completionCallbackType)
             playerNode.play()
             status = .playing
         }

@@ -30,7 +30,6 @@ public class AudioPlayer: Node {
     public internal(set) var status = NodeStatus.Playback.stopped
 
     public var isPlaying: Bool { status == .playing }
-    public var scheduleFileCompletionDelegate: AudioPlayerScheduleFileCompletionDelegate?
 
     private var _isBuffered: Bool = false
     /// If the player is currently using a buffer as an audio source
@@ -202,8 +201,7 @@ public class AudioPlayer: Node {
               !isSeeking,
               engine?.isInManualRenderingMode == false else { return }
 
-//        completionHandler?()
-        scheduleFileCompletionDelegate?.scheduleCompletionCallback()
+        completionHandler?()
 
         if isLooping, !isBuffered {
             status = .stopped
