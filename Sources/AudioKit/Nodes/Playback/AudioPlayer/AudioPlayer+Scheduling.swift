@@ -58,13 +58,7 @@ extension AudioPlayer {
                                    completionCallbackType: completionCallbackType) {[weak self] _ in
             guard let self else { return }
             if self.isSeeking { return }
-            if Thread.isMainThread {
-                self.internalCompletionHandler()
-            } else {
-                DispatchQueue.main.async {
-                    self.internalCompletionHandler()
-                }
-            }
+            self.internalCompletionHandler()
         }
 
         playerNode.prepare(withFrameCount: frameCount)
@@ -97,13 +91,7 @@ extension AudioPlayer {
                                   completionCallbackType: completionCallbackType) {[weak self] _ in
             guard let self else { return }
             if self.isSeeking { return }
-            if Thread.isMainThread {
-                self.internalCompletionHandler()
-            } else {
-                DispatchQueue.main.async {
-                    self.internalCompletionHandler()
-                }
-            }
+            self.internalCompletionHandler()
         }
         playerNode.prepare(withFrameCount: buffer.frameLength)
     }
