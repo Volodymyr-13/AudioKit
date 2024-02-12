@@ -39,7 +39,9 @@ public extension AudioPlayer {
         if status == .paused {
             resume()
         } else {
-//            schedule(at: when, completionCallbackType: completionCallbackType)
+            if !skipScheduleFile {
+                schedule(at: when, completionCallbackType: completionCallbackType)
+            }
             playerNode.play()
             status = .playing
         }
@@ -101,14 +103,16 @@ public extension AudioPlayer {
         isSeeking = true
         playerNode.stop()
 
-        playerNode.scheduleSegment(
-            file,
-            startingFrame: startFrame,
-            frameCount: frameCount,
-            at: nil,
-            completionCallbackType: .dataPlayedBack
-        ) { _ in
-            self.internalCompletionHandler()
+        if !skipScheduleFile {
+            playerNode.scheduleSegment(
+                file,
+                startingFrame: startFrame,
+                frameCount: frameCount,
+                at: nil,
+                completionCallbackType: .dataPlayedBack
+            ) { _ in
+                self.internalCompletionHandler()
+            }
         }
 
         if status == .playing {

@@ -46,6 +46,7 @@ public class AudioPlayer: Node {
     }
 
     private var _isReversed: Bool = false
+    public var skipScheduleFile: Bool = false
 
     /// Will reverse the file and convert to a buffered format if it's not already
     public var isReversed: Bool {
