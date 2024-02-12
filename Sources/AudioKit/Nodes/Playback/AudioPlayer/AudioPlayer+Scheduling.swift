@@ -10,7 +10,7 @@ extension AudioPlayer {
     ///   - completionCallbackType: Constants that specify when the completion handler must be invoked.
     public func schedule(at when: AVAudioTime? = nil,
                          completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack,
-                         completionHandler: @escaping () -> Void)
+                         completionHandler: @escaping () -> Void = {})
     {
         status = .scheduling
 

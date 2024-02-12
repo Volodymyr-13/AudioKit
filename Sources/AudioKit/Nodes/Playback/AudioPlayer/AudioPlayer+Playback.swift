@@ -14,7 +14,7 @@ public extension AudioPlayer {
               to endTime: TimeInterval? = nil,
               at when: AVAudioTime? = nil,
               completionCallbackType: AVAudioPlayerNodeCompletionCallbackType = .dataPlayedBack,
-              completionHandler: @escaping () -> Void)
+              completionHandler: @escaping () -> Void = {})
     {
         guard let engine = playerNode.engine else {
             Log("🛑 Error: AudioPlayer must be attached before playback.", type: .error)
@@ -73,7 +73,7 @@ public extension AudioPlayer {
     /// Positive time seeks forwards, negative time seeks backwards.
     /// - Parameters:
     ///   - time seconds, relative to current playback, to seek by
-    func seek(time seekTime: TimeInterval, completionHandler: @escaping () -> Void) {
+    func seek(time seekTime: TimeInterval, completionHandler: @escaping () -> Void = {}) {
         guard seekTime != 0 else { return }
         
         guard let file = file else { return }
