@@ -107,8 +107,8 @@ open class BaseTap {
 
         bufferWithCapacity.frameLength = bufferSize
 
-        self.callbackQueue.async {
-
+        callbackQueue.async { [weak self] in
+            guard let self else { return }
             // Create trackers as needed.
             self.lock()
             guard self.isStarted == true else {

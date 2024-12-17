@@ -30,7 +30,7 @@ public class AmplitudeTap: BaseTap {
     /// Determines if the returned amplitude value is the rms or peak value
     public var analysisMode: AnalysisMode = .rms
 
-    private var handler: (Float) -> Void = { _ in }
+    private var handler: (Float, Float) -> Void = { _, _ in }
 
     /// Initialize the amplitude
     ///
@@ -45,7 +45,7 @@ public class AmplitudeTap: BaseTap {
                 stereoMode: StereoMode = .center,
                 analysisMode: AnalysisMode = .rms,
                 callbackQueue: DispatchQueue = .main,
-                handler: @escaping (Float) -> Void = { _ in }) {
+                handler: @escaping (_ left: Float, _ right: Float) -> Void = { _, _ in }) {
         self.handler = handler
         self.stereoMode = stereoMode
         self.analysisMode = analysisMode
@@ -82,11 +82,13 @@ public class AmplitudeTap: BaseTap {
 
         switch stereoMode {
         case .left:
-            handler(leftAmplitude)
+            handler(leftAmplitude, leftAmplitude)
         case .right:
-            handler(rightAmplitude)
+            handler(rightAmplitude, rightAmplitude)
         case .center:
-            handler(amplitude)
+            handler(amplitude, amplitude)
+        case .stereo:
+            handler(leftAmplitude, rightAmplitude)
         }
     }
 
@@ -115,4 +117,6 @@ public enum StereoMode {
     case right
     /// Use combined left and right channels
     case center
+    /// Use combined left and right channels
+    case stereo
 }
