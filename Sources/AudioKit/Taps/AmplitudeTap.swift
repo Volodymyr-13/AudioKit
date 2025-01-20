@@ -71,12 +71,16 @@ public class AmplitudeTap: BaseTap {
             if analysisMode == .rms {
                 var rms: Float = 0
                 vDSP_rmsqv(data, 1, &rms, UInt(length))
-                amp[n] = rms
+                if amp.indices.contains(n) {
+                    amp[n] = rms
+                }
             } else {
                 var peak: Float = 0
                 var index: vDSP_Length = 0
                 vDSP_maxvi(data, 1, &peak, &index, UInt(length))
-                amp[n] = peak
+                if amp.indices.contains(n) {
+                    amp[n] = peak
+                }
             }
         }
 
