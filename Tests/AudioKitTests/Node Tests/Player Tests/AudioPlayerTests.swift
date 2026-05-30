@@ -1,6 +1,7 @@
-import AudioKit
 import AVFoundation
 import XCTest
+
+@testable import AudioKit
 
 class AudioPlayerTests: XCTestCase {
 
@@ -543,6 +544,92 @@ class AudioPlayerTests: XCTestCase {
         let currentTime2 = player.currentTime
         XCTAssertEqual(currentTime2, 2)
         testMD5(audio)
+    }
+
+    /// Regression test for the stale-completion race introduced by PR #2978.
+    /// A completion from an older scheduled segment must not affect the newer
+    /// playback that replaced it after seek/reschedule.
+    func testStaleCompletionDoesNotStompPlaybackOrInvokeHandler() {
+        guard let url = Bundle.module.url(forResource: "TestResources/12345", withExtension: "wav") else {
+            XCTFail("Didn't get test file")
+            return
+        }
+
+        let engine = AudioEngine()
+        let player = AudioPlayer()
+        engine.output = player
+        player.isLooping = false
+
+        var completionCount = 0
+        player.completionHandler = {
+            completionCount += 1
+        }
+
+        do {
+            try player.load(url: url)
+        } catch let error as NSError {
+            Log(error, type: .error)
+            XCTFail(error.description)
+        }
+
+        let staleGeneration = player.bumpScheduleGeneration()
+
+        let audio = engine.startTest(totalDuration: 1.0)
+        player.play()
+        audio.append(engine.render(duration: 0.1))
+        XCTAssertEqual(player.status, .playing)
+
+        let staleCompletionIgnored = expectation(description: "stale completion ignored")
+        DispatchQueue.global().async {
+            player.invokeCompletionHandlerOnMain(generation: staleGeneration)
+            DispatchQueue.main.async {
+                staleCompletionIgnored.fulfill()
+            }
+        }
+        wait(for: [staleCompletionIgnored], timeout: 1.0)
+
+        XCTAssertEqual(player.status, .playing,
+                       "stale completion must not stomp status to .stopped")
+        XCTAssertEqual(completionCount, 0,
+                       "stale completion must not invoke the user-supplied handler")
+    }
+
+    /// `stop()` promises not to generate a callback event, even if the retired
+    /// schedule later reports completion.
+    func testStopDoesNotInvokeCompletionHandler() {
+        guard let url = Bundle.module.url(forResource: "TestResources/12345", withExtension: "wav") else {
+            XCTFail("Didn't get test file")
+            return
+        }
+
+        let engine = AudioEngine()
+        let player = AudioPlayer()
+        engine.output = player
+        player.isLooping = false
+
+        var completionCount = 0
+        player.completionHandler = {
+            completionCount += 1
+        }
+
+        do {
+            try player.load(url: url)
+        } catch let error as NSError {
+            Log(error, type: .error)
+            XCTFail(error.description)
+        }
+
+        let audio = engine.startTest(totalDuration: 1.0)
+        player.play()
+        audio.append(engine.render(duration: 0.1))
+        let stoppedGeneration = player.currentScheduleGeneration
+        player.stop()
+
+        player.internalCompletionHandler(generation: stoppedGeneration)
+
+        XCTAssertEqual(player.status, .stopped)
+        XCTAssertEqual(completionCount, 0,
+                       "stop() must not produce a user completion callback")
     }
 
     func testSeekWillStop() {
