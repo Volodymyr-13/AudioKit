@@ -44,7 +44,7 @@ public extension Node {
     ///   - offset: Time in samples
     ///
     func scheduleMIDIEvent(event: MIDIEvent, offset: UInt64 = 0) {
-        if let midiBlock = avAudioNode.auAudioUnit.scheduleMIDIEventBlock {
+        if let midiBlock = avAudioNode.audioKitAudioUnit.scheduleMIDIEventBlock {
             event.data.withUnsafeBufferPointer { ptr in
                 guard let ptr = ptr.baseAddress else { return }
                 midiBlock(AUEventSampleTimeImmediate + AUEventSampleTime(offset), 0, event.data.count, ptr)
@@ -93,7 +93,7 @@ public extension Node {
             }
         }
 
-        avAudioNode.auAudioUnit.parameterTree = AUParameterTree.createTree(withChildren: params)
+        avAudioNode.audioKitAudioUnit.parameterTree = AUParameterTree.createTree(withChildren: params)
     }
 }
 
@@ -173,8 +173,8 @@ extension Node {
     }
 
     var bypassed: Bool {
-        get { avAudioNode.auAudioUnit.shouldBypassEffect }
-        set { avAudioNode.auAudioUnit.shouldBypassEffect = newValue }
+        get { avAudioNode.audioKitAudioUnit.shouldBypassEffect }
+        set { avAudioNode.audioKitAudioUnit.shouldBypassEffect = newValue }
     }
 }
 

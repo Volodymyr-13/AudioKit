@@ -120,7 +120,7 @@ public class NodeParameter {
             return
         }
         assert(delaySamples <= 4096)
-        let paramBlock = avAudioNode.auAudioUnit.scheduleParameterBlock
+        let paramBlock = avAudioNode.audioKitAudioUnit.scheduleParameterBlock
         paramBlock(AUEventSampleTimeImmediate + Int64(delaySamples),
                    AUAudioFrameCount(duration * Float(Settings.sampleRate)),
                    parameter.address,
@@ -160,7 +160,7 @@ public class NodeParameter {
     ///   - avAudioNode: AVAudioUnit to associate with
     public func associate(with avAudioNode: AVAudioNode) {
         self.avAudioNode = avAudioNode
-        guard let tree = avAudioNode.auAudioUnit.parameterTree else {
+        guard let tree = avAudioNode.audioKitAudioUnit.parameterTree else {
             fatalError("No parameter tree.")
         }
         parameter = tree.parameter(withAddress: def.address)

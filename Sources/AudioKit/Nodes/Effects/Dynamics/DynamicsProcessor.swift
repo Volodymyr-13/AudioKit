@@ -111,17 +111,17 @@ public class DynamicsProcessor: NamedNode {
 
     /// Compression Amount (dB) read only
     public var compressionAmount: AUValue {
-        return effectAU.auAudioUnit.parameterTree?.allParameters[7].value ?? 0
+        return effectAU.audioKitAudioUnit.parameterTree?.allParameters[7].value ?? 0
     }
 
     /// Input Amplitude (dB) read only
     public var inputAmplitude: AUValue {
-        return effectAU.auAudioUnit.parameterTree?.allParameters[8].value ?? 0
+        return effectAU.audioKitAudioUnit.parameterTree?.allParameters[8].value ?? 0
     }
 
     /// Output Amplitude (dB) read only
     public var outputAmplitude: AUValue {
-        return effectAU.auAudioUnit.parameterTree?.allParameters[9].value ?? 0
+        return effectAU.audioKitAudioUnit.parameterTree?.allParameters[9].value ?? 0
     }
 
     /// Initialize the dynamics processor node

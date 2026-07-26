@@ -70,7 +70,7 @@ open class AppleSampler: NamedNode {
 
     /// Initialize the sampler node
     public init() {
-        internalAU = samplerUnit.auAudioUnit
+        internalAU = samplerUnit.audioKitAudioUnit
     }
 
     // Add URL based initializers

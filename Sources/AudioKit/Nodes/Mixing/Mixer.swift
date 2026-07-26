@@ -150,7 +150,7 @@ public class Mixer: Node, NamedNode {
     /// - Returns: new input busses array size or its current size in case it's less than required
     ///  and resize failed, or can't be done.
     public func resizeInputBussesArray(requiredSize: Int) -> Int {
-        let busses = mixerAU.auAudioUnit.inputBusses
+        let busses = mixerAU.audioKitAudioUnit.inputBusses
         guard busses.isCountChangeable else {
             // input busses array is not changeable
             return min(busses.count, requiredSize)
