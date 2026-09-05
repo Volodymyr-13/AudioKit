@@ -15,11 +15,11 @@ python3 AudioKitFormats/Scripts/prepare-format-corpus.py
 
 The source defaults to `../AudioTest_FilesTypes`. Use `--source /path/to/corpus`
 to select another copy of the same corpus. Python 3.9+, `ffprobe`, and `ffmpeg`
-must be available. The required downloaded APE sample is documented in
+must be available. The required downloaded APE and WavPack samples are documented in
 [SAMPLES.md](SAMPLES.md).
 
-Preparation copies all 22 corpus files without modifying them, verifies SHA-256,
-and independently decodes the APE with FFmpeg into a PCM reference WAV. No
+Preparation copies all 23 corpus files without modifying them, verifies SHA-256,
+and independently decodes APE/WavPack with FFmpeg into PCM reference WAVs. No
 encoded audio is generated. Local resource copies, decoded references, and the
 manifest are ignored by Git. The manifest records hashes and formats. Tests fail with setup
 instructions if these resources are missing; missing fixtures are not skips.
@@ -54,7 +54,7 @@ fixtures intentionally contain silence; ReplayGain fixtures may legitimately
 decode above amplitude 1. Native compressed-file lengths can include codec
 padding, so tests distinguish declared length from decoded samples.
 
-APE PCM is compared with a reference decoded independently by FFmpeg. Native
+APE and WavPack PCM are compared with references decoded independently by FFmpeg. Native
 format tests check AudioKit scheduling against AVAudioFile; they do not provide
 an independent validation of Apple's codecs. TS and WMA are explicit rejection
 cases for this playback path, not successful playback tests. These expectations
@@ -67,6 +67,6 @@ AC3 on macOS/iOS, and Vorbis on macOS. They use strict `XCTExpectFailure` only f
 the completion-timing assertion. All PCM comparisons and other assertions must
 still pass. These are known unresolved behaviors, not fixed defects; an
 unexpected pass also fails and asks for the exception to be reviewed. The APE
-path has no expected-failure exemptions.
+and WavPack paths have no expected-failure exemptions.
 
 See [VALIDATION.md](../../VALIDATION.md) for recorded results.

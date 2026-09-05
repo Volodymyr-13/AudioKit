@@ -1,7 +1,7 @@
 # AudioKitFormats
 
 An optional AudioKit extension for audio files that need an external decoder.
-The first codec is Monkey's Audio (APE), exposed as a local, seekable PCM source.
+Monkey's Audio (APE) and WavPack are exposed as local, seekable PCM sources.
 The parent AudioKit package has no dependency on this package.
 
 ## Package boundaries
@@ -9,7 +9,7 @@ The parent AudioKit package has no dependency on this package.
 | Product | Responsibility | Dependencies |
 | --- | --- | --- |
 | `PCMDecoding` | Serialized PCM source contract | AVFAudio |
-| `FallbackDecoders` | APE file decoding into planar Float32 PCM | PCMDecoding, CXXMonkeysAudio 12.13.0 |
+| `FallbackDecoders` | APE and WavPack decoding into planar Float32 PCM | PCMDecoding, CXXMonkeysAudio 12.13.0, wavpack-binary-xcframework 0.2.0 |
 | `AudioKitFormats` | Bounded-buffer playback through an AudioKit Node | PCMDecoding, AudioKit |
 
 The player does not depend on a particular codec. Providers are constructed
@@ -30,8 +30,8 @@ and `FallbackDecoders` products. A remote consumer will need this directory
 published as a separate repository root; the parent AudioKit repository URL
 continues to expose only the original AudioKit package.
 
-The initial package has one external codec dependency. Selecting only the player
-product avoids linking the APE adapter, but does not promise to avoid SwiftPM
+The package has two external codec dependencies. Selecting only the player
+product avoids linking the codec adapters, but does not promise to avoid SwiftPM
 resolving/downloading dependencies declared by this manifest. Independent codec
 packages can be split out when adding independently selectable formats.
 
@@ -62,6 +62,12 @@ player.close()
 engine.stop()
 ```
 
+For WavPack, construct `WavPackPCMSource(url: fileURL)` and pass it to the same
+player. It opens only that WV file; adjacent WVC correction files are not read.
+Hybrid WV therefore plays its lossy main stream, exposed by `isLossless == false`.
+Ordinary lossless WV remains lossless. Missing precision data in an initially
+lossless stream is an error rather than a silent loss of fidelity.
+
 Keep the player and engine alive for the duration of playback. Obtain format
 information before handing a source to the player; after that handoff the player
 exclusively owns the source. The example caches the sample rate before handoff
@@ -82,8 +88,9 @@ is not implemented by this package.
 
 ## Scope
 
-- Local APE input; PCM decoding and seek are independent of the playback graph.
-- Float32 noninterleaved output; the initial APE bridge accepts mono/stereo.
+- Local APE and WV input; PCM decoding and seek are independent of the playback graph.
+- Float32 noninterleaved output; both bridges accept mono/stereo 8/16/24/32-bit
+  integer and Float32 input. DSD and multichannel WavPack are rejected.
 - Bounded decoded-audio buffering rather than loading an entire track into RAM.
 - Play, pause/resume, stop, seek, close, and final-buffer completion.
 - No network streaming, automatic format registry, looping, metadata editing,
@@ -97,13 +104,13 @@ is not implemented by this package.
 Run `swift test --package-path AudioKitFormats` from the parent checkout for the
 self-contained tests of the PCM player and URL errors, without audio files. For the private real-file
 corpus, use the separate [FormatCorpus suite](IntegrationTests/FormatCorpus/README.md).
-It tests native AudioKit playback and the APE extension against actual recordings,
+It tests native AudioKit playback and both external decoders against actual recordings,
 including independent decoded PCM references, transport controls, and mixed playback.
 Both suites use offline rendering without physical audio output. See
 `VALIDATION.md` for results and remaining integration checks. The command-line
 workflow does not require reopening the Xcode GUI.
 
-The APE bridge adapts the decoder boundary from SFBAudioEngine at
+The codec bridges adapt the decoder boundary from SFBAudioEngine at
 `abb4e351c8dd870137b19723dea975f8804220c1`. See `THIRD_PARTY_NOTICES.md` for
 source provenance and dependency notices. Codec-library internals may allocate
 their own decode buffers; the player's pool bound describes its PCM queue.

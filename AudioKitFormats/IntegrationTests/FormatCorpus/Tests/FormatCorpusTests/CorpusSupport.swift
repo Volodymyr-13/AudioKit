@@ -21,7 +21,7 @@ enum Corpus {
         "audio-test.aac", "audio-test.ac3", "audio-test.aif", "audio-test.aiff", "audio-test.ape",
         "audio-test.alac", "audio-test.flac", "audio-test.m4a", "audio-test.mp3",
         "audio-test.mp4", "audio-test.ogg", "audio-test.opus", "audio-test.ts",
-        "audio-test.wav", "audio-test.wma", "chapters-quicktime.m4a", "chapters-v23.mp3",
+        "audio-test.wav", "audio-test.wma", "audio-test.wv", "chapters-quicktime.m4a", "chapters-v23.mp3",
         "chapters-v24.mp3", "no-chapters.mp3", "replaygain-id3v2-01.mp3",
         "replaygain-id3v2-02.mp3", "samdivine-chapters-30m.m4a",
     ]

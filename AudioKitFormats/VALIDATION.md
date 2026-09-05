@@ -1,6 +1,6 @@
 # Validation — 2026-09-05
 
-The optional package adds APE decoding to the existing AudioKit graph. The
+The optional package adds APE and WavPack decoding to the existing AudioKit graph. The
 parent AudioKit sources, manifest, and dependency graph are unchanged. Work is
 on dev/AudioKitFormats, based on AudioKit c358c15fdcdd0e78c4b4988f5c532c7cfb5c2eeb.
 The SFB decoder-design donor is abb4e351c8dd870137b19723dea975f8804220c1.
@@ -8,7 +8,7 @@ The SFB decoder-design donor is abb4e351c8dd870137b19723dea975f8804220c1.
 ## Current test inputs
 
 All encoded audio comes from the separate AudioTest_FilesTypes repository:
-21 existing files plus an unchanged public FFmpeg APE sample. Their prepared
+21 existing files plus unchanged public FFmpeg APE and WavPack samples. Their prepared
 copies and independent FFmpeg PCM references are ignored by Git. No audio
 payload or encoder generator is included in AudioKitFormats. See
 [the sample inventory](IntegrationTests/FormatCorpus/SAMPLES.md) for URLs,
@@ -27,7 +27,31 @@ covered by the current real sample. The resource-free suite retains synthetic
 PCM source tests for bounded buffering, transport, errors, underrun, and
 completion generation; it does not create encoded audio files.
 
-## APE step checks
+## Final WavPack step checks
+
+- Resource-free suite: 20 tests passed on macOS and 20 on iOS Simulator.
+- Real-file suite: 49 tests on macOS and 48 on iOS Simulator, with no unexpected
+  failures. The known native callback issues remain two expected failures on
+  macOS and one on iOS; no APE/WavPack checks are exempted and no tests skipped.
+- WavPack adds nine real-file decoder cases, three graph/transport/mixing cases,
+  and two URL cases. Every sample of the 2,667,168-frame WV matches independent
+  FFmpeg PCM. Native AVAudioFile rejects this WV on both tested platforms.
+- WavPack dependency: wavpack-binary-xcframework 0.2.0 / WavPack 5.9.0. The core
+  AudioKit dependency graph remains unchanged; only AudioKitFormats links it.
+- WVC correction files are not opened. Hybrid WV main-stream playback is
+  explicitly lossy; the current public corpus covers ordinary lossless WV only.
+  DSD and multichannel WV are rejected, and other representations need samples.
+- Missing precision data in a formerly lossless stream now fails before PCM is
+  returned. A separate temporary 32-bit smoke reproduced missing WVX data in
+  first/later blocks and validated rejection at open/read/seek; it is not a
+  checked-in fixture or a substitute for the public-corpus coverage limits.
+- Logs: /tmp/audiokit-wavpack-unit-mac.log, /tmp/audiokit-wavpack-unit-ios.log,
+  /tmp/audiokit-wavpack-corpus-mac-final.log, /tmp/audiokit-wavpack-corpus-ios.log.
+  iOS result bundle: /tmp/AudioKitFormats-WavPack-corpus.xcresult.
+- Preparation verified all 23 input copies, decoded two independent references,
+  and retired the previous generated APE resource directory.
+
+## Earlier APE step checks
 
 - Resource-free suite: 18 tests on macOS and 18 on iOS Simulator, all passed.
 - Real-file suite: 37 macOS tests, no unexpected failures, with two explicitly

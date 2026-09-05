@@ -28,8 +28,11 @@ NATIVE_FILES = frozenset({
     "replaygain-id3v2-01.mp3", "replaygain-id3v2-02.mp3",
     "samdivine-chapters-30m.m4a",
 })
-FALLBACK_FILES = {"audio-test.ape": "ape"}
-FALLBACK_HASHES = {"audio-test.ape": "6a7b79a6d530e9847c18119d627bd43c8d27dcefb3ec7ec979b9b6306e34ac15"}
+FALLBACK_FILES = {"audio-test.ape": "ape", "audio-test.wv": "wavpack"}
+FALLBACK_HASHES = {
+    "audio-test.ape": "6a7b79a6d530e9847c18119d627bd43c8d27dcefb3ec7ec979b9b6306e34ac15",
+    "audio-test.wv": "e94c946cbad31706815ce55426a8b60a9c16ba8827d3aa69854192903b7a1645",
+}
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 CORPUS_ROOT = PACKAGE_ROOT / "IntegrationTests/FormatCorpus/Tests/FormatCorpusTests/Corpus"
 

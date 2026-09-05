@@ -32,14 +32,33 @@ The preparation script checks the pinned download hash and uses FFmpeg with
 strict error checking to create an independent Float32 WAV reference. That
 reference is temporary test data, not another encoded-format fixture.
 
+## WavPack sample
+
+Download [luckynight.wv](https://samples.ffmpeg.org/A-codecs/lossless/luckynight.wv)
+from the same FFmpeg collection into AudioTest_FilesTypes/audio-test.wv.
+It is the unchanged 6,605,816-byte original, with the same 60.48-second,
+44,100 Hz, stereo 16-bit recording and 2,667,168 PCM frames as the APE.
+
+- SHA-256: e94c946cbad31706815ce55426a8b60a9c16ba8827d3aa69854192903b7a1645.
+- Published MD5: 79b26f9b8dd7281539986d3088dcb6fa.
+- Independent strict FFmpeg decoding produces identical PCM for the two formats.
+- No trimming or re-encoding; the same provenance and recording-rights limits
+  described for APE apply.
+
+The WavPack tests cover this lossless 16-bit stereo stream. Hybrid/WVC, mono,
+other integer widths, Float32, multichannel and DSD have no public fixtures in
+this corpus yet. Multichannel/DSD input is explicitly rejected by the initial
+provider; WVC files are not opened. Those limitations are separate from support
+for ordinary lossless WV.
+
 ## Missing format coverage
 
-The corpus still needs WavPack for the next decoder step. Beyond that it has no
+The corpus has no
 Musepack MPC, True Audio TTA, Shorten SHN, Speex SPX, DSD DSF/DFF, or tracker
 MOD/XM/IT/S3M samples. Those decoders are not implemented yet. Existing native
 Vorbis, WMA, and TS samples can be reused when adding their fallback paths.
 
 Removing generated APE files also removes dedicated mono, 8/24/32-bit integer,
-and Float32 boundary fixtures. Current real-file APE coverage is stereo16-bit;
+and Float32 boundary fixtures. Current real-file APE coverage is stereo 16-bit;
 other sample representations remain implementation capabilities needing their
 own external test samples. The in-memory PCM player contract tests are retained.

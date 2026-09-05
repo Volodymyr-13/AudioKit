@@ -15,6 +15,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/AudioKit/AudioKit.git", from: "5.7.2"),
         .package(url: "https://github.com/sbooth/CXXMonkeysAudio", exact: "12.13.0"),
+        .package(url: "https://github.com/sbooth/wavpack-binary-xcframework", exact: "0.2.0"),
     ],
     targets: [
         .target(name: "PCMDecoding"),
@@ -23,7 +24,12 @@ let package = Package(
             dependencies: [.product(name: "MAC", package: "CXXMonkeysAudio")],
             linkerSettings: [.linkedFramework("AVFAudio")]
         ),
-        .target(name: "FallbackDecoders", dependencies: ["PCMDecoding", "CAPEDecoder"]),
+        .target(
+            name: "CWavPackDecoder",
+            dependencies: [.product(name: "wavpack", package: "wavpack-binary-xcframework")],
+            linkerSettings: [.linkedFramework("AVFAudio")]
+        ),
+        .target(name: "FallbackDecoders", dependencies: ["PCMDecoding", "CAPEDecoder", "CWavPackDecoder"]),
         .target(
             name: "AudioKitFormats",
             dependencies: ["PCMDecoding", .product(name: "AudioKit", package: "AudioKit")]

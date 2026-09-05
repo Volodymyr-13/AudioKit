@@ -15,13 +15,13 @@ final class CorpusIntegrityTests: XCTestCase {
         let expected = Set([
             "audio-test.aac", "audio-test.ac3", "audio-test.aif", "audio-test.aiff", "audio-test.alac", "audio-test.ape",
             "audio-test.flac", "audio-test.m4a", "audio-test.mp3", "audio-test.mp4", "audio-test.ogg",
-            "audio-test.opus", "audio-test.ts", "audio-test.wav", "audio-test.wma",
+            "audio-test.opus", "audio-test.ts", "audio-test.wav", "audio-test.wma", "audio-test.wv",
             "chapters-quicktime.m4a", "chapters-v23.mp3", "chapters-v24.mp3", "no-chapters.mp3",
             "replaygain-id3v2-01.mp3", "replaygain-id3v2-02.mp3", "samdivine-chapters-30m.m4a",
         ])
         XCTAssertEqual(Set(originals.map(\.name)), expected)
         XCTAssertEqual(originals.count, expected.count)
-        XCTAssertEqual(manifest.files.count, expected.count + 1)
+        XCTAssertEqual(manifest.files.count, expected.count + 2)
         for entry in manifest.files {
             XCTAssertFalse(entry.relativePath.hasPrefix("/"))
             XCTAssertFalse(entry.relativePath.split(separator: "/").contains(".."))
@@ -38,12 +38,16 @@ final class CorpusIntegrityTests: XCTestCase {
             XCTAssertEqual(hash, entry.sha256, entry.name)
             XCTAssertEqual(byteCount, entry.byteCount, entry.name)
         }
-        let reference = try XCTUnwrap(manifest.files.first { $0.kind == "reference" })
-        let ape = try XCTUnwrap(originals.first { $0.name == "audio-test.ape" })
-        XCTAssertEqual(reference.name, "audio-test.ape.wav")
-        XCTAssertEqual(reference.derivedFrom, ape.relativePath)
-        XCTAssertEqual(reference.sourceSHA256, ape.sha256)
-        XCTAssertEqual(reference.pcmFrames, 2_667_168)
+        let references = manifest.files.filter { $0.kind == "reference" }
+        XCTAssertEqual(Set(references.map(\.name)), ["audio-test.ape.wav", "audio-test.wv.wav"])
+        XCTAssertEqual(references.count, 2)
+        for name in ["audio-test.ape", "audio-test.wv"] {
+            let reference = try XCTUnwrap(references.first { $0.name == name + ".wav" })
+            let original = try XCTUnwrap(originals.first { $0.name == name })
+            XCTAssertEqual(reference.derivedFrom, original.relativePath)
+            XCTAssertEqual(reference.sourceSHA256, original.sha256)
+            XCTAssertEqual(reference.pcmFrames, 2_667_168)
+        }
     }
 }
 
