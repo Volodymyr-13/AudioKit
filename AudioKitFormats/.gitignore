@@ -1,0 +1,8 @@
+.build/
+.swiftpm/
+Package.resolved
+
+# Private real-file integration corpus. Prepare from AudioTest_FilesTypes locally.
+IntegrationTests/FormatCorpus/Tests/FormatCorpusTests/Corpus/Original/
+IntegrationTests/FormatCorpus/Tests/FormatCorpusTests/Corpus/References/
+IntegrationTests/FormatCorpus/Tests/FormatCorpusTests/Corpus/manifest.json
